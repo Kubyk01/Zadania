@@ -1,0 +1,48 @@
+#w konsoli: python manage.py shell
+
+#stworzyc admina z haslem admin i loginem admin:
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+
+admin_user = User.objects.create_superuser(
+    username='admin',
+    email='admin@example.com',
+    password='admin'
+)
+
+admin_user.save()
+admin_user = User.objects.get(username='admin')
+
+token, created = Token.objects.get_or_create(user=admin_user)
+print(f"Token: {token.key}")
+
+#stworzyc usera z haslem user i loginem user:
+
+user = User.objects.create_user(
+    username='user',
+    email='user@example.com',
+    password='user'
+)
+
+user.save()
+user_user = User.objects.get(username='user')
+
+token, created = Token.objects.get_or_create(user=user_user)
+print(f"Token: {token.key}")
+
+
+#tests in powershell
+#create resource using admin token
+Invoke-WebRequest -Uri "http://127.0.0.1:8000/resource/" -Method Post -Headers @{"Authorization"="Token <pasteadmintoken>"; "Content-Type"="application/json"} -Body (@{name="Conference Room"; resource_type="sala konferencyjna"; location="Building A, Floor 2"; availability="Poniedziałek-Piątek, 9:00-18:00"} | ConvertTo-Json)
+
+#make reservation
+Invoke-WebRequest -Uri "http://127.0.0.1:8000/reservations/" -Method POST -Headers @{ Authorization = "Token <pastehereusertoken>" } -Body @{
+    user = 1;
+    resource = 1;
+    start_time = "2025-02-19T09:00Z";
+    end_time = "2025-02-19T10:30Z"
+} | ConvertFrom-Json
+
+
+#Get Report
+Invoke-WebRequest -Uri "http://127.0.0.1:8000/report/" -Method Get -Headers @{ Authorization = "Token <pasteadmintoken>" } | ConvertFrom-Json

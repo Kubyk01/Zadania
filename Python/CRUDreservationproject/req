@@ -1,0 +1,7 @@
+drf-yasg
+psycopg2
+djangorestframework
+celery
+django-q
+django-simple-history
+django-rest-swagger
